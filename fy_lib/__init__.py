@@ -1,0 +1,222 @@
+from datetime import datetime, timedelta
+from fyers_apiv3 import fyersModel
+import pandas as pd
+
+fyers_user_id_BBP = 'XB01059'
+fyers_pwd_BBP = 'BBP@trade89'
+fyers_totp_key_BBP = "4JAOSAZMBDYVS3IGONCPN7XKSHKIMJXK"
+fyers_api_id_BBP = 'XFXR7ZDBAB-100'
+fyers_api_secret_BBP = 'GKTM3ZWCFW'
+fyers_pin_BBP = "3185"
+fyers_redirect_uri_BBP = "https://trade.fyers.in/api-login/redirect-uri/index.html"
+
+zerodha_api_key = "91r8wknd9z1yd6x1"
+zerodha_api_secret = "lku1a5zo3vgrnww9zf8joxxm7glub1ii"
+
+
+angle_username = 'B226380'
+angle_password = 'BBP@trade85'
+angle_api_key = 'qTU6tEie'
+# Dont change  below varibale
+FEED_TOKEN = None
+TOKEN_MAP = None
+SMART_API_OBJ = None
+
+fyers_user_id_NBP = 'XN04887'
+fyers_pwd_NBP = 'NBP@trade89'
+fyers_two_fa_NBP = "DFCPP4705R"
+fyers_api_id_NBP = "Q7UAZUMB7K-100"
+fyers_api_secret_NBP = "D11SYT4F4U"
+
+fyers_redirect_url = 'https://trade.fyers.in/api-login/redirect-uri/index.html'
+access_token_BBP = open("access_token2_BBP.txt", "r").read()
+
+fyers = fyersModel.FyersModel(client_id=fyers_api_id_BBP, token=access_token_BBP, log_path="D:\\bhave\\Desktop")
+
+
+def place_BO_order(symbol, qty, side, limitPrice, stopPrice, stopLoss, takeProfit):
+    data = {
+        "symbol": symbol,
+        "qty": qty,
+        "type": 4,  # 1 = Limit Order, 2 = Market Order, 3 = Stop Order (SL-M), 4 = Stoplimit Order (SL-L)
+        "side": side,  # 1 = buy, -1 = sell
+        "productType": "BO",  # CNC=equity only, INTRADAY=all segments, MARGIN=derivatives, CO=Cover O, BO=Bracket O
+        "limitPrice": limitPrice,
+        "stopPrice": stopPrice,  # Provide valid price for CO and BO orders
+        "validity": "DAY",
+        "disclosedQty": 0,
+        "offlineOrder": "False",
+        "stopLoss": stopLoss,
+        "takeProfit": takeProfit  # Provide valid price for CO and BO orders
+    }
+    fyers.place_order(data)
+
+
+def place_CO_order(symbol, qty: int, side: int, limitPrice: float, stopLoss: float):
+    data = {
+        "symbol": symbol,
+        "qty": qty,
+        "type": 1,  # 1 = Limit Order, 2 = Market Order, 3 = Stop Order (SL-M), 4 = Stoplimit Order (SL-L)
+        "side": side,  # 1 = buy, -1 = sell
+        "productType": "CO",   # CNC=equity only, INTRADAY=all segments, MARGIN=derivatives, CO=Cover O, BO=Bracket O
+        "limitPrice": limitPrice,
+        "stopPrice": 0,  # Provide valid price for CO and BO orders
+        "validity": "DAY",
+        "disclosedQty": 0,
+        "offlineOrder": "False",
+        "stopLoss": stopLoss,
+        "takeProfit": 0  # Provide valid price for CO and BO orders
+    }
+    fyers.place_order(data)
+
+
+def place_SL_order(symbol, qty: int, side: int, stopPrice: float, limitPrice: float):
+    data = {
+        "symbol": symbol,
+        "qty": qty,
+        "type": 4,  # 1 = Limit Order, 2 = Market Order, 3 = Stop Order (SL-M), 4 = Stoplimit Order (SL-L)
+        "side": side,  # 1 = buy, -1 = sell
+        "productType": "MARGIN",  # CNC=equity only, INTRADAY=all segments, MARGIN=derivatives, CO=Cover O, BO=Bracket O
+        "limitPrice": limitPrice,
+        "stopPrice": stopPrice,  # Provide valid price for CO and BO orders
+        "validity": "DAY",
+        "disclosedQty": 0,
+        "offlineOrder": "False",
+        "stopLoss": 0,
+        "takeProfit": 0  # Provide valid price for CO and BO orders
+    }
+    fyers.place_order(data)
+
+
+def place_BP_order(symbol, qty: int, side: int, limitPrice: float):
+    data = {
+        "symbol": symbol,
+        "qty": qty,
+        "type": 3,  # 1 = Limit Order, 2 = Market Order, 3 = Stop Order (SL-M), 4 = Stoplimit Order (SL-L)
+        "side": side,  # 1 = buy, -1 = sell
+        "productType": "MARGIN",  # CNC=equity only, INTRADAY=all segments, MARGIN=derivatives, CO=Cover O, BO=Bracket O
+        "limitPrice": limitPrice,
+        "stopPrice": 0,  # Provide valid price for CO and BO orders
+        "validity": "DAY",
+        "disclosedQty": 0,
+        "offlineOrder": "False",
+        "stopLoss": 0,
+        "takeProfit": 0  # Provide valid price for CO and BO orders
+    }
+    fyers.place_order(data)
+
+
+def place_L_order(symbol, qty: int, side: int, limitPrice: float):
+    data = {
+        "symbol": symbol,
+        "qty": qty,
+        "type": 1,  # 1 = Limit Order, 2 = Market Order, 3 = Stop Order (SL-M), 4 = Stoplimit Order (SL-L)
+        "side": side,  # 1 = buy, -1 = sell
+        "productType": "MARGIN",  # CNC=equity only, INTRADAY=all segments, MARGIN=derivatives, CO=Cover O, BO=Bracket O
+        "limitPrice": limitPrice,
+        "stopPrice": 0,  # Provide valid price for CO and BO orders
+        "validity": "DAY",
+        "disclosedQty": 0,
+        "offlineOrder": "False",
+        "stopLoss": 0,
+        "takeProfit": 0  # Provide valid price for CO and BO orders
+    }
+    fyers.place_order(data)
+
+
+def historical_data(symbol, delta, resolution):
+    from_date = (datetime.now()-timedelta(days=delta)).strftime("%Y-%m-%d")
+    to_date = (datetime.now()+timedelta(days=1)).strftime("%Y-%m-%d")
+    data = {
+        "symbol": symbol,
+        "resolution": resolution,
+        "date_format": 1,
+        "range_from": from_date,
+        "range_to": to_date,
+        "cont_flag": 0
+    }
+    df = fyers.history(data)
+    columns = ['timestamp', 'open', 'high', 'low', 'close', 'volume']
+    df = pd.DataFrame(df['candles'], columns=columns)
+    df['timestamp'] = (pd.to_datetime(df['timestamp'], unit='s').dt.tz_localize('utc').dt.tz_convert('Asia/Kolkata'))
+    df = df[['timestamp', 'open', 'high', 'low', 'close', 'volume']]
+    return df
+
+
+INDEX = ['NSE:NIFTY', 'NSE:BANKNIFTY']
+N50_LIST = ["NSE:ADANIPORTS-EQ", 'NSE:AXISBANK-EQ', 'NSE:BAJAJ-AUTO-EQ', 'NSE:BAJAJFINSV-EQ',
+            'NSE:BAJFINANCE-EQ', 'NSE:BHARTIARTL-EQ', 'NSE:BPCL-EQ', 'NSE:CIPLA-EQ', 'NSE:COALINDIA-EQ',
+            'NSE:DIVISLAB-EQ', 'NSE:DRREDDY-EQ', 'NSE:EICHERMOT-EQ', 'NSE:GRASIM-EQ', 'NSE:HCLTECH-EQ',
+            'NSE:HDFCBANK-EQ', 'NSE:HDFC-EQ', 'NSE:HDFCLIFE-EQ', 'NSE:HEROMOTOCO-EQ', 'NSE:HINDALCO-EQ',
+            'NSE:HINDUNILVR-EQ', 'NSE:ICICIBANK-EQ', 'NSE:INDUSINDBK-EQ', 'NSE:INFY-EQ', 'NSE:IOC-EQ', 'NSE:ITC-EQ',
+            'NSE:JSWSTEEL-EQ', 'NSE:KOTAKBANK-EQ', 'NSE:LT-EQ', 'NSE:M&M-EQ', 'NSE:MARUTI-EQ', 'NSE:NESTLEIND-EQ',
+            'NSE:NTPC-EQ', 'NSE:ONGC-EQ', 'NSE:POWERGRID-EQ', 'NSE:RELIANCE-EQ', 'NSE:SBILIFE-EQ', 'NSE:SBIN-EQ',
+            'NSE:SHREECEM-EQ', 'NSE:SUNPHARMA-EQ', 'NSE:TATACONSUM-EQ', 'NSE:TATAMOTORS-EQ', 'NSE:TATASTEEL-EQ',
+            "NSE:TCS-EQ", 'NSE:TECHM-EQ', 'NSE:TITAN-EQ', 'NSE:ULTRACEMCO-EQ', 'NSE:UPL-EQ', 'NSE:WIPRO-EQ']
+N50_FUT_LOTSIZE = {'NSE:AARTIIND21DECFUT': 850, 'NSE:ABFRL21DECFUT': 2600, 'NSE:ACC21DECFUT': 500,
+                   'NSE:ADANIENT21DECFUT': 1000, 'NSE:ADANIPORTS21DECFUT': 1250, 'NSE:ALKEM21DECFUT': 200,
+                   'NSE:AMARAJABAT21DECFUT': 1000, 'NSE:AMBUJACEM21DECFUT': 3000, 'NSE:APLLTD21DECFUT': 550,
+                   'NSE:APOLLOHOSP21DECFUT': 250, 'NSE:APOLLOTYRE21DECFUT': 2500, 'NSE:ASHOKLEY21DECFUT': 4500,
+                   'NSE:ASTRAL21DECFUT': 275, 'NSE:AUBANK21DECFUT': 500,
+                   'NSE:AUROPHARMA21DECFUT': 650, 'NSE:AXISBANK21DECFUT': 1200, 'NSE:BAJAJ-AUTO21DECFUT': 250,
+                   'NSE:BAJAJFINSV21DECFUT': 75, 'NSE:BAJFINANCE21DECFUT': 125, 'NSE:BALKRISIND21DECFUT': 400,
+                   'NSE:BANDHANBNK21DECFUT': 1800, 'NSE:BANKBARODA21DECFUT': 11700, 'NSE:BATAINDIA21DECFUT': 550,
+                   'NSE:BEL21DECFUT': 3800, 'NSE:BERGEPAINT21DECFUT': 1100, 'NSE:BHARATFORG21DECFUT': 1500,
+                   'NSE:BHARTIARTL21DECFUT': 1886, 'NSE:BHEL21DECFUT': 10500, 'NSE:BIOCON21DECFUT': 2300,
+                   'NSE:BOSCHLTD21DECFUT': 50, 'NSE:BPCL21DECFUT': 1800, 'NSE:BRITANNIA21DECFUT': 200,
+                   'NSE:CADILAHC21DECFUT': 2200, 'NSE:CANBK21DECFUT': 5400, 'NSE:CHOLAFIN21DECFUT': 1250,
+                   'NSE:CIPLA21DECFUT': 650, 'NSE:COALINDIA21DECFUT': 4200, 'NSE:COFORGE21DECFUT': 200,
+                   'NSE:COLPAL21DECFUT': 350, 'NSE:CONCOR21DECFUT': 1563, 'NSE:COROMANDEL21DECFUT': 625,
+                   'NSE:CUB21DECFUT': 3100, 'NSE:CUMMINSIND21DECFUT': 600, 'NSE:DABUR21DECFUT': 1250,
+                   'NSE:DEEPAKNTR21DECFUT': 500, 'NSE:DIVISLAB21DECFUT': 200, 'NSE:DLF21DECFUT': 3300,
+                   'NSE:DRREDDY21DECFUT': 125, 'NSE:EICHERMOT21DECFUT': 350, 'NSE:ESCORTS21DECFUT': 550,
+                   'NSE:EXIDEIND21DECFUT': 3600, 'NSE:FEDERALBNK21DECFUT': 10000, 'NSE:GAIL21DECFUT': 6100,
+                   'NSE:GLENMARK21DECFUT': 1150, 'NSE:GMRINFRA21DECFUT': 22500, 'NSE:GODREJCP21DECFUT': 1000,
+                   'NSE:GODREJPROP21DECFUT': 650, 'NSE:GRANULES21DECFUT': 1550, 'NSE:GRASIM21DECFUT': 475,
+                   'NSE:GUJGASLTD21DECFUT': 1250, 'NSE:HAVELLS21DECFUT': 500, 'NSE:HCLTECH21DECFUT': 700,
+                   'NSE:HDFC21DECFUT': 300, 'NSE:HDFCAMC21DECFUT': 200, 'NSE:HDFCBANK21DECFUT': 550,
+                   'NSE:HDFCLIFE21DECFUT': 1100, 'NSE:HEROMOTOCO21DECFUT': 300, 'NSE:HINDALCO21DECFUT': 2150,
+                   'NSE:HINDPETRO21DECFUT': 2700, 'NSE:HINDUNILVR21DECFUT': 300, 'NSE:IBULHSGFIN21DECFUT': 3100,
+                   'NSE:ICICIBANK21DECFUT': 1375, 'NSE:ICICIGI21DECFUT': 425, 'NSE:ICICIPRULI21DECFUT': 1500,
+                   'NSE:IDEA21DECFUT': 70000, 'NSE:IDFCFIRSTB21DECFUT': 9500, 'NSE:IGL21DECFUT': 1375,
+                   'NSE:INDHOTEL21DECFUT': 3900, 'NSE:INDIGO21DECFUT': 500, 'NSE:INDUSINDBK21DECFUT': 900,
+                   'NSE:INDUSTOWER21DECFUT': 2800, 'NSE:INFY21DECFUT': 600, 'NSE:IOC21DECFUT': 6500,
+                   'NSE:IRCTC21DECFUT': 325, 'NSE:ITC21DECFUT': 3200, 'NSE:JINDALSTEL21DECFUT': 2500,
+                   'NSE:JSWSTEEL21DECFUT': 1350, 'NSE:JUBLFOOD21DECFUT': 250, 'NSE:KOTAKBANK21DECFUT': 400,
+                   'NSE:L&TFH21DECFUT': 8924, 'NSE:LALPATHLAB21DECFUT': 250, 'NSE:LICHSGFIN21DECFUT': 2000,
+                   'NSE:LT21DECFUT': 575, 'NSE:LTI21DECFUT': 150, 'NSE:LTTS21DECFUT': 200, 'NSE:LUPIN21DECFUT': 850,
+                   'NSE:M&M21DECFUT': 700, 'NSE:M&MFIN21DECFUT': 4000, 'NSE:MANAPPURAM21DECFUT': 6000,
+                   'NSE:MARICO21DECFUT': 2000, 'NSE:MARUTI21DECFUT': 100, 'NSE:MCDOWELL-N21DECFUT': 1250,
+                   'NSE:METROPOLIS21DECFUT': 200, 'NSE:MFSL21DECFUT': 650, 'NSE:MGL21DECFUT': 600,
+                   'NSE:MINDTREE21DECFUT': 400, 'NSE:MOTHERSUMI21DECFUT': 3500, 'NSE:MPHASIS21DECFUT': 325,
+                   'NSE:MRF21DECFUT': 10, 'NSE:MUTHOOTFIN21DECFUT': 750, 'NSE:NAM-INDIA21DECFUT': 1600,
+                   'NSE:NATIONALUM21DECFUT': 17000, 'NSE:NAUKRI21DECFUT': 125, 'NSE:NAVINFLUOR21DECFUT': 225,
+                   'NSE:NESTLEIND21DECFUT': 50, 'NSE:NMDC21DECFUT': 6700, 'NSE:NTPC21DECFUT': 5700,
+                   'NSE:ONGC21DECFUT': 7700, 'NSE:PAGEIND21DECFUT': 30, 'NSE:PEL21DECFUT': 275,
+                   'NSE:PETRONET21DECFUT': 3000, 'NSE:PFC21DECFUT': 6200, 'NSE:PFIZER21DECFUT': 125,
+                   'NSE:PIDILITIND21DECFUT': 500, 'NSE:PIIND21DECFUT': 250, 'NSE:PNB21DECFUT': 16000,
+                   'NSE:POWERGRID21DECFUT': 5333, 'NSE:PVR21DECFUT': 407, 'NSE:RAMCOCEM21DECFUT': 850,
+                   'NSE:RBLBANK21DECFUT': 2900, 'NSE:RECLTD21DECFUT': 6000, 'NSE:RELIANCE21DECFUT': 250,
+                   'NSE:SAIL21DECFUT': 9500, 'NSE:SBILIFE21DECFUT': 750, 'NSE:SBIN21DECFUT': 1500,
+                   'NSE:SHREECEM21DECFUT': 25, 'NSE:SIEMENS21DECFUT': 275, 'NSE:SRF21DECFUT': 125,
+                   'NSE:SRTRANSFIN21DECFUT': 400, 'NSE:STAR21DECFUT': 675, 'NSE:SUNPHARMA21DECFUT': 1400,
+                   'NSE:SUNTV21DECFUT': 1500, 'NSE:TATACHEM21DECFUT': 1000, 'NSE:TATACONSUM21DECFUT': 1350,
+                   'NSE:TATAMOTORS21DECFUT': 2850, 'NSE:TATAPOWER21DECFUT': 6750, 'NSE:TATASTEEL21DECFUT': 850,
+                   'NSE:TCS21DECFUT': 300, 'NSE:TECHM21DECFUT': 600, 'NSE:TITAN21DECFUT': 375,
+                   'NSE:TORNTPHARM21DECFUT': 250, 'NSE:TORNTPOWER21DECFUT': 1500, 'NSE:TRENT21DECFUT': 725,
+                   'NSE:TVSMOTOR21DECFUT': 1400, 'NSE:UBL21DECFUT': 700, 'NSE:ULTRACEMCO21DECFUT': 100,
+                   'NSE:UPL21DECFUT': 1300, 'NSE:VEDL21DECFUT': 3100, 'NSE:VOLTAS21DECFUT': 500,
+                   'NSE:WIPRO21DECFUT': 1600, 'NSE:ZEEL21DECFUT': 3000, 'NSE:CANFINHOME21DECFUT': 975,
+                   'NSE:DIXON21DECFUT': 125, 'NSE:HAL21DECFUT': 475, 'NSE:IEX21DECFUT': 1250,
+                   'NSE:INDIAMART21DECFUT': 75, 'NSE:IPCALAB21DECFUT': 225, 'NSE:MCX21DECFUT': 350,
+                   'NSE:OFSS21DECFUT': 125, 'NSE:POLYCAB21DECFUT': 300, 'NSE:SYNGENE21DECFUT': 850,
+                   'NSE:ABBOTINDIA21DECFUT': 25, 'NSE:CROMPTON21DECFUT': 1100, 'NSE:DALBHARAT21DECFUT': 250,
+                   'NSE:DELTACORP21DECFUT': 2300, 'NSE:INDIACEM21DECFUT': 2900, 'NSE:JKCEMENT21DECFUT': 175,
+                   'NSE:OBEROIRLTY21DECFUT': 700, 'NSE:PERSISTENT21DECFUT': 150}
+N50 = ['NIFTY', 'BANKNIFTY', 'ADANIPORTS', 'AXISBANK', 'BAJAJ-AUTO', 'BAJAJFINSV', 'BAJFINANCE', 'BHARTIARTL', 'BPCL',
+       'CIPLA', 'COALINDIA', 'DIVISLAB', 'DRREDDY', 'EICHERMOT', 'GRASIM', 'HCLTECH', 'HDFCBANK', 'HDFC',
+       'HDFCLIFE', 'HEROMOTOCO', 'HINDALCO', 'HINDUNILVR', 'ICICIBANK', 'INDUSINDBK', 'INFY', 'IOC', 'ITC', 'JSWSTEEL',
+       'KOTAKBANK', 'LT', 'M&M', 'MARUTI', 'NESTLEIND', 'NTPC', 'ONGC', 'POWERGRID', 'RELIANCE', 'SBILIFE', 'SBIN',
+       'SHREECEM', 'SUNPHARMA', 'TATACONSUM', 'TATAMOTORS', 'TATASTEEL', 'TCS', 'TECHM', 'TITAN', 'ULTRACEMCO', 'UPL',
+       'WIPRO']
+MCX_FUT = ["MCX:NATURALGAS21DECFUT", "MCX:COTTON21DECFUT", "MCX:ALUMINIUM21DECFUT", "MCX:COPPER21DECFUT", "MCX:CPO21DECFUT", "MCX:LEAD21DECFUT", "MCX:ZINC21DECFUT", "MCX:NICKEL21DECFUT", "MCX:RUBBER21DECFUT", "MCX:MENTHAOIL21DECFUT", "MCX:GOLDGUINEA21DECFUT", "MCX:GOLDPETAL21DECFUT"]

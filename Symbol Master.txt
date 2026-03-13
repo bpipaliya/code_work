@@ -1,0 +1,8 @@
+NSE – Currency Derivatives:
+http://public.fyers.in/sym_details/NSE_CD.csv
+NSE – Equity Derivatives:
+http://public.fyers.in/sym_details/NSE_FO.csv
+NSE – Capital Market:
+http://public.fyers.in/sym_details/NSE_CM.csv
+MCX - Commodity:
+http://public.fyers.in/sym_details/MCX_COM.csv
